@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'add_report_screen.dart';
+import 'my_reports_screen.dart';
 
 class StudentShell extends StatefulWidget {
   const StudentShell({super.key});
@@ -17,8 +19,8 @@ class _StudentShellState extends State<StudentShell> {
     final pages = <Widget>[
       Center(child: Text('Home - hello ${user.name}')),
       const Center(child: Text('Search')),
-      const Center(child: Text('Add Report')),
-      const Center(child: Text('My Reports')),
+      const AddReportScreen(),
+      const MyReportsScreen(),
       Center(
         child: FilledButton(
           onPressed: () => context.read<AuthProvider>().signOut(),
