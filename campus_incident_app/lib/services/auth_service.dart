@@ -32,4 +32,9 @@ class AuthService {
     if (!doc.exists) return null;
     return AppUser.fromMap(uid, doc.data()!);
   }
+
+  Future<void> updateName(String uid, String name) async {
+    await _db.collection('users').doc(uid).update({'name': name});
+    await _auth.currentUser?.updateDisplayName(name);
+  }
 }

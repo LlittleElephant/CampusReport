@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
 import 'add_report_screen.dart';
+import 'home_screen.dart';
 import 'my_reports_screen.dart';
+import 'profile_screen.dart';
+import 'search_screen.dart';
 
 class StudentShell extends StatefulWidget {
   const StudentShell({super.key});
@@ -15,21 +16,15 @@ class _StudentShellState extends State<StudentShell> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().user!;
     final pages = <Widget>[
-      Center(child: Text('Home - hello ${user.name}')),
-      const Center(child: Text('Search')),
+      HomeScreen(onNewReport: () => setState(() => _i = 2)),
+      const SearchScreen(),
       const AddReportScreen(),
       const MyReportsScreen(),
-      Center(
-        child: FilledButton(
-          onPressed: () => context.read<AuthProvider>().signOut(),
-          child: const Text('Log out'),
-        ),
-      ),
+      const ProfileScreen(),
     ];
     return Scaffold(
-      body: SafeArea(child: pages[_i]),
+      body: IndexedStack(index: _i, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _i,
         onDestinationSelected: (i) => setState(() => _i = i),

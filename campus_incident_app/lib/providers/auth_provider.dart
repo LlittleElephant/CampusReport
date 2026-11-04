@@ -56,6 +56,19 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateName(String name) async {
+    try {
+      await _service.updateName(_user!.uid, name);
+      _user = AppUser(
+          uid: _user!.uid, name: name, email: _user!.email, role: _user!.role);
+      notifyListeners();
+      return true;
+    } catch (_) {
+      _error = 'Could not update your name.';
+      return false;
+    }
+  }
+
   Future<void> signOut() => _service.signOut();
 
   String _message(String code) {
