@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/report_provider.dart';
-import '../../widgets/status_chip.dart';
-import '../shared/report_details_screen.dart';
+import '../../widgets/report_card.dart';
+
 
 class MyReportsScreen extends StatelessWidget {
   const MyReportsScreen({super.key});
@@ -26,18 +26,7 @@ class MyReportsScreen extends StatelessWidget {
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (_, i) {
                     final r = list[i];
-                    return Card(
-                      child: ListTile(
-                        title: Text(r.title),
-                        subtitle: Text('${r.category} • ${r.location}'),
-                        trailing: StatusChip(r.status),
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ReportDetailsScreen(report: r)),
-                        ),
-                      ),
-                    );
+                    return ReportCard(r);
                   },
                 ),
     );
