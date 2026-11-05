@@ -56,6 +56,25 @@ class ReportProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateStatus({
+    required String id,
+    required String status,
+    required String note,
+    required String staffName,
+  }) async {
+    _submitting = true; _error = null; notifyListeners();
+    try {
+      await _service.updateStatus(
+          id: id, status: status, note: note, staffName: staffName);
+      return true;
+    } catch (e) {
+      _error = 'Could not update the status.';
+      return false;
+    } finally {
+      _submitting = false; notifyListeners();
+    }
+  }
+
   @override
   void dispose() { _sub?.cancel(); super.dispose(); }
 }

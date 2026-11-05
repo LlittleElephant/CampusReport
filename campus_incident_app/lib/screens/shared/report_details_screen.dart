@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants.dart';
 import '../../models/report.dart';
+import '../../providers/report_provider.dart';
 import '../../widgets/status_chip.dart';
+import '../../widgets/status_update_form.dart';
 
 class ReportDetailsScreen extends StatelessWidget {
   final Report report;
-  const ReportDetailsScreen({super.key, required this.report});
+  final bool staffControls;
+  const ReportDetailsScreen(
+      {super.key, required this.report, this.staffControls = false});
+
+  String _date(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
   @override
   Widget build(BuildContext context) {
-    final r = report;
+    final r = context.watch<ReportProvider>().reports.firstWhere(
+        (x) => x.id == report.id,
+        orElse: () => report);
     final reached = kStatuses.indexOf(r.status);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Report details')),
       body: ListView(
@@ -25,8 +35,7 @@ class ReportDetailsScreen extends StatelessWidget {
           ]),
           const SizedBox(height: 8),
           Text('${r.category} • ${r.location}'),
-          Text('By ${r.reporterName} on '
-              '${r.createdAt.day}/${r.createdAt.month}/${r.createdAt.year}'),
+          Text('By ${r.reporterName} on ${_date(r.createdAt)}'),
           const SizedBox(height: 16),
           if (r.imageUrl != null)
             ClipRRect(
@@ -47,6 +56,22 @@ class ReportDetailsScreen extends StatelessWidget {
               ),
               title: Text(kStatuses[i]),
             ),
+          const SizedBox(height: 16),
+          Text('Updates', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          for (final h in r.statusHistory.reversed)
+            ListTile(
+              dense: true,
+              title: Text(h['status'] ?? ''),
+              subtitle: Text([
+                if ((h['note'] ?? '').toString().isNotEmpty) h['note'],
+                if (h['by'] != null) 'by ${h['by']}',
+              ].join('\n')),
+            ),
+          if (staffControls) ...[
+            const SizedBox(height: 16),
+            StatusUpdateForm(r),
+          ],
         ],
       ),
     );

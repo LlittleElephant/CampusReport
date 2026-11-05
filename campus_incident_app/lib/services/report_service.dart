@@ -30,6 +30,21 @@ class ReportService {
     });
   }
 
+  Future<void> updateStatus({
+    required String id,
+    required String status,
+    required String note,
+    required String staffName,
+  }) {
+    return _col.doc(id).update({
+      'status': status,
+      'updatedAt': FieldValue.serverTimestamp(),
+      'statusHistory': FieldValue.arrayUnion([
+        {'status': status, 'at': Timestamp.now(), 'note': note, 'by': staffName}
+      ]),
+    });
+  }
+
   Stream<List<Report>> allReports() => _col
       .orderBy('createdAt', descending: true)
       .snapshots()

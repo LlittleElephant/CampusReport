@@ -5,7 +5,8 @@ import 'status_chip.dart';
 
 class ReportCard extends StatelessWidget {
   final Report report;
-  const ReportCard(this.report, {super.key});
+  final bool staff;
+  const ReportCard(this.report, {super.key, this.staff = false});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class ReportCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => ReportDetailsScreen(report: report)),
+              builder: (_) => ReportDetailsScreen(report: report, staffControls: staff)),
         ),
       ),
     );
