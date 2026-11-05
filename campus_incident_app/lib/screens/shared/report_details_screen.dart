@@ -40,7 +40,17 @@ class ReportDetailsScreen extends StatelessWidget {
           if (r.imageUrl != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(r.imageUrl!),
+              child: Image.network(
+                r.imageUrl!,
+                loadingBuilder: (_, child, progress) => progress == null
+                    ? child
+                    : const SizedBox(
+                        height: 180,
+                        child: Center(child: CircularProgressIndicator())),
+                errorBuilder: (_, _, _) => const SizedBox(
+                    height: 120,
+                    child: Center(child: Text('Photo could not be loaded'))),
+              ),
             ),
           const SizedBox(height: 16),
           Text(r.description),
