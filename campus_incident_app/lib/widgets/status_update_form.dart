@@ -29,9 +29,12 @@ class _StatusUpdateFormState extends State<StatusUpdateForm> {
       staffName: staff.name,
     );
     if (!mounted) return;
-    if (ok) _note.clear();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(ok ? 'Status updated' : rp.error ?? 'Failed')));
+    if (ok) {
+      _note.clear();
+      Navigator.pop(context);
+    }
   }
 
   @override
