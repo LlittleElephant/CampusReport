@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../constants.dart';
 import '../models/app_user.dart';
 
 class AuthService {
@@ -9,17 +10,20 @@ class AuthService {
   Stream<User?> get authChanges => _auth.authStateChanges();
 
   Future<AppUser> signUp(String name, String email, String password) async {
+    if (roleForEmail(email) == null) {
+      throw FirebaseAuthException(code: 'invalid-domain');
+    }
     final cred = await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
-    await cred.user!.updateDisplayName(name);
-    await _db.collection('users').doc(cred.user!.uid).set({
+    final user = cred.user!;
+    await user.updateDisplayName(name);
+    await _db.collection('users').doc(user.uid).set({
       'name': name,
       'email': email,
       'role': 'student', // staff are promoted manually
       'createdAt': FieldValue.serverTimestamp(),
     });
-    return AppUser(
-        uid: cred.user!.uid, name: name, email: email, role: 'student');
+    return AppUser(uid: user.uid, name: name, email: email, role: 'student');
   }
 
   Future<void> signIn(String email, String password) =>

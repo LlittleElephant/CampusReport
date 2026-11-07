@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:neobrutalism_ui/neobrutalism_ui.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/report_provider.dart';
+import '../../widgets/brutal_widgets.dart';
 import '../../widgets/report_card.dart';
 
 class StaffShell extends StatefulWidget {
@@ -32,11 +34,13 @@ class _StaffShellState extends State<StaffShell> {
           (_category == null || r.category == _category);
     }).toList();
 
-    int count(String s) => rp.reports.where((r) => r.status == s).length;
+    final total = rp.reports.length;
+    final resolved = rp.reports.where((r) => r.status == 'Resolved').length;
+    final pending = total - resolved;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Staff • ${user.name}'),
+        title: const Text('Staff'),
         actions: [
           IconButton(
             tooltip: 'Log out',
@@ -45,73 +49,95 @@ class _StaffShellState extends State<StaffShell> {
           ),
         ],
       ),
-      body: Column(children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-          child: TextField(
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Search title, location, reporter',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (v) => setState(() => _query = v.trim()),
-          ),
-        ),
-        SizedBox(
-          height: 56,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            children: [
+      body: rp.loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(padding: const EdgeInsets.only(bottom: 16), children: [
               Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ChoiceChip(
-                  label: Text('All (${rp.reports.length})'),
-                  selected: _status == null,
-                  onSelected: (_) => setState(() => _status = null),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Text('Hi, ${user.name.split(' ').first}',
+                    style: const TextStyle(
+                        fontSize: 26, fontWeight: FontWeight.w900)),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 20, 0),
+                child: Row(children: [
+                  _Stat('Total', total, kBlue),
+                  const SizedBox(width: 12),
+                  _Stat('Pending', pending, kPink),
+                  const SizedBox(width: 12),
+                  _Stat('Resolved', resolved, kGreen),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 20, 4),
+                child: NeoTextField(
+                  placeholder: 'Search title, location, reporter',
+                  prefix: const Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: Icon(Icons.search),
+                  ),
+                  onChanged: (v) => setState(() => _query = v.trim()),
                 ),
               ),
-              for (final s in kStatuses)
+              FilterRow(
+                label: 'Status',
+                options: kStatuses,
+                selected: _status,
+                colorFor: statusColor,
+                onSelected: (v) => setState(() => _status = v),
+              ),
+              FilterRow(
+                label: 'Category',
+                options: kCategories,
+                selected: _category,
+                onSelected: (v) => setState(() => _category = v),
+              ),
+              const SizedBox(height: 8),
+              if (list.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: EmptyState(
+                      icon: Icons.inbox_outlined,
+                      title: 'No reports match',
+                      message: 'Try clearing a filter.'),
+                )
+              else
                 Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text('$s (${count(s)})'),
-                    selected: _status == s,
-                    onSelected: (_) =>
-                        setState(() => _status = _status == s ? null : s),
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Column(children: [
+                    for (final r in list) ReportCard(r, staff: true),
+                  ]),
                 ),
-            ],
-          ),
+            ]),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+  const _Stat(this.label, this.value, this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: NeoCard(
+        color: color,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Center(
+          child: Column(children: [
+            Text('$value',
+                style: const TextStyle(
+                    fontSize: 26, fontWeight: FontWeight.w900)),
+            Text(label.toUpperCase(),
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1)),
+          ]),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: DropdownButton<String?>(
-            isExpanded: true,
-            value: _category,
-            hint: const Text('Category'),
-            items: [
-              const DropdownMenuItem<String?>(
-                  value: null, child: Text('All categories')),
-              ...kCategories.map((c) =>
-                  DropdownMenuItem<String?>(value: c, child: Text(c))),
-            ],
-            onChanged: (v) => setState(() => _category = v),
-          ),
-        ),
-        Expanded(
-          child: rp.loading
-              ? const Center(child: CircularProgressIndicator())
-              : list.isEmpty
-                  ? const Center(child: Text('No reports match.'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: list.length,
-                      itemBuilder: (_, i) =>
-                          ReportCard(list[i], staff: true),
-                    ),
-        ),
-      ]),
+      ),
     );
   }
 }

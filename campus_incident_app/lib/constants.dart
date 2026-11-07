@@ -26,3 +26,18 @@ Color statusColor(String status) {
     default: return const Color(0xFFD9D9D9);
   }
 }
+
+const kStudentDomain = 'alustudent.com';
+const kStaffDomain = 'alueducation.com';
+const kDomainMessage =
+    'Use your ALU email.';
+
+/// Returns 'student', 'staff', or null if the email is not an ALU address.
+String? roleForEmail(String email) {
+  final m = RegExp(r'^[^@\s]+@([^@\s]+)$').firstMatch(email.trim().toLowerCase());
+  if (m == null) return null;
+  final domain = m.group(1);
+  if (domain == kStudentDomain) return 'student';
+  if (domain == kStaffDomain) return 'staff';
+  return null;
+}

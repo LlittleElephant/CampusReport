@@ -25,7 +25,7 @@ class AuthHeader extends StatelessWidget {
   }
 }
 
-class AuthField extends StatelessWidget {
+class AuthField extends StatefulWidget {
   final String label, placeholder;
   final TextEditingController controller;
   final String? error;
@@ -45,23 +45,44 @@ class AuthField extends StatelessWidget {
   });
 
   @override
+  State<AuthField> createState() => _AuthFieldState();
+}
+
+class _AuthFieldState extends State<AuthField> {
+  bool _hidden = true;
+
+  @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label.toUpperCase(),
+      Text(widget.label.toUpperCase(),
           style: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1)),
       const SizedBox(height: 6),
       NeoTextField(
-        controller: controller,
-        placeholder: placeholder,
-        obscureText: obscure,
-        keyboardType: keyboardType,
-        onSubmitted: onSubmitted,
+        controller: widget.controller,
+        placeholder: widget.placeholder,
+        obscureText: widget.obscure && _hidden,
+        keyboardType: widget.keyboardType,
+        onSubmitted: widget.onSubmitted,
+        suffix: widget.obscure
+            ? GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() => _hidden = !_hidden),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Icon(
+                    _hidden
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                ),
+              )
+            : null,
       ),
-      if (error != null)
+      if (widget.error != null)
         Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Text(error!,
+          child: Text(widget.error!,
               style: const TextStyle(
                   color: Color(0xFFD00000), fontWeight: FontWeight.w700)),
         ),

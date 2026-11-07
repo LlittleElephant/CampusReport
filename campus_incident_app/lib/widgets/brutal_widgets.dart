@@ -143,3 +143,56 @@ class EmptyState extends StatelessWidget {
     );
   }
 }
+
+class ChipSelect extends StatelessWidget {
+  final List<String> options;
+  final String? selected;
+  final ValueChanged<String> onSelected;
+  final Color Function(String)? colorFor;
+  const ChipSelect({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onSelected,
+    this.colorFor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(spacing: 10, runSpacing: 12, children: [
+      for (final o in options)
+        BrutalChip(
+          label: o,
+          selected: selected == o,
+          color: colorFor?.call(o),
+          onTap: () => onSelected(o),
+        ),
+    ]);
+  }
+}
+
+class FieldBlock extends StatelessWidget {
+  final String label;
+  final Widget child;
+  final String? error;
+  const FieldBlock(
+      {super.key, required this.label, required this.child, this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label.toUpperCase(),
+          style: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1)),
+      const SizedBox(height: 8),
+      child,
+      if (error != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(error!,
+              style: const TextStyle(
+                  color: Color(0xFFD00000), fontWeight: FontWeight.w700)),
+        ),
+    ]);
+  }
+}
