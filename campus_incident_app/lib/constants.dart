@@ -20,9 +20,9 @@ const kStatuses = ['Submitted', 'In Review', 'In Progress', 'Resolved'];
 
 Color statusColor(String status) {
   switch (status) {
-    case 'In Review': return Colors.orange;
-    case 'In Progress': return Colors.blue;
-    case 'Resolved': return Colors.green;
-    default: return Colors.grey;
+    case 'In Review': return kYellow;
+    case 'In Progress': return kBlue;
+    case 'Resolved': return kGreen;
+    default: return const Color(0xFFD9D9D9);
   }
 }

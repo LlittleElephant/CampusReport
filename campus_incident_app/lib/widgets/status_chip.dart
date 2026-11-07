@@ -7,15 +7,18 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = statusColor(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        color: statusColor(status),
+        border: Border.all(width: 2),
+        borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(status,
-          style: TextStyle(color: c, fontSize: 12, fontWeight: FontWeight.w600)),
+      child: Text(status.toUpperCase(),
+          style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Colors.black)),
     );
   }
 }
