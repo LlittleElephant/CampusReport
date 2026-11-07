@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:neobrutalism_ui/neobrutalism_ui.dart';
 import 'package:provider/provider.dart';
+import '../../constants.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/auth_widgets.dart';
+import '../../widgets/floating_shapes.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,15 +14,29 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _pass = TextEditingController();
+  String? _emailError, _passError;
 
   @override
-  void dispose() { _email.dispose(); _pass.dispose(); super.dispose(); }
+  void dispose() {
+    _email.dispose();
+    _pass.dispose();
+    super.dispose();
+  }
+
+  bool _validate() {
+    final email = _email.text.trim();
+    setState(() {
+      _emailError =
+          (!email.contains('@') || !email.contains('.')) ? 'Enter a valid email' : null;
+      _passError = _pass.text.length < 6 ? 'At least 6 characters' : null;
+    });
+    return _emailError == null && _passError == null;
+  }
 
   Future<void> _submit() async {
-    if (!_form.currentState!.validate()) return;
+    if (!_validate()) return;
     await context.read<AuthProvider>().signIn(_email.text.trim(), _pass.text);
   }
 
@@ -26,57 +44,77 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _form,
-              child: Column(children: [
-                const Text('Campus Incident Reporter',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (v) => (v == null || !v.contains('@'))
-                      ? 'Enter a valid email' : null,
-                ),
-                TextFormField(
-                  controller: _pass,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  validator: (v) => (v == null || v.length < 6)
-                      ? 'At least 6 characters' : null,
-                ),
-                if (auth.error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(auth.error!,
-                        style: const TextStyle(color: Colors.red)),
+      backgroundColor: kCream,
+      body: Stack(children: [
+        const Positioned.fill(child: FloatingShapes()),
+        SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const AuthHeader(
+                    title: 'CAMPUS\nINCIDENT\nREPORTER',
+                    subtitle: 'Spot a problem on campus? Report it, track it, see it fixed.',
                   ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: auth.loading ? null : _submit,
-                    child: auth.loading
-                        ? const SizedBox(height: 18, width: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Log in'),
+                  const SizedBox(height: 24),
+                  NeoCard(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AuthField(
+                          label: 'Email',
+                          placeholder: 'you@school.edu',
+                          controller: _email,
+                          error: _emailError,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 16),
+                        AuthField(
+                          label: 'Password',
+                          placeholder: 'At least 6 characters',
+                          controller: _pass,
+                          error: _passError,
+                          obscure: true,
+                          onSubmitted: (_) => _submit(),
+                        ),
+                        if (auth.error != null) ...[
+                          const SizedBox(height: 16),
+                          AuthErrorBox(auth.error!),
+                        ],
+                        const SizedBox(height: 20),
+                        NeoButton(
+                          width: double.infinity,
+                          isLoading: auth.loading,
+                          onPressed: auth.loading ? null : _submit,
+                          child: const Text('LOG IN',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900, letterSpacing: 1)),
+                        ),
+                        const SizedBox(height: 12),
+                        NeoButton(
+                          width: double.infinity,
+                          backgroundColor: kBlue,
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const SignupScreen())),
+                          child: const Text('CREATE AN ACCOUNT',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900, letterSpacing: 1)),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const SignupScreen())),
-                  child: const Text('Create an account'),
-                ),
-              ]),
+                ]),
+              ),
             ),
           ),
         ),
-      ),
+      ]),
     );
   }
 }

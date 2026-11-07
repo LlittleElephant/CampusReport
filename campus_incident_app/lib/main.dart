@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/staff/staff_shell.dart';
 import 'screens/student/student_shell.dart';
+import 'package:neobrutalism_ui/neobrutalism_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'Campus Incident Reporter',
-        theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
+        theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
+        builder: (context, child) => NeoTheme(
+          data: NeoThemeData.light(),
+          child: child!,
+        ),
         home: const AuthGate(),
       );
 }

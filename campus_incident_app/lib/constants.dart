@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+const kCream = Color(0xFFFFF4E0);
+const kYellow = Color(0xFFFFDC58);
+const kPink = Color(0xFFFF6B9D);
+const kBlue = Color(0xFF6BCBFF);
+const kGreen = Color(0xFF7CE38B);
+
 const kCategories = [
   'Broken facility',
   'Water shortage',
